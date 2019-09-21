@@ -2,7 +2,7 @@ FROM openjdk:8-jre-alpine
 
 MAINTAINER martinnowak
 
-ARG KAFKA_VERSION=1.0.0
+ARG KAFKA_VERSION=2.3.0
 ARG SCALA_VERSION=2.11
 # generate unique id by default
 ENV BROKER_ID=-1
@@ -17,7 +17,7 @@ RUN wget --quiet "http://www.apache.org/dyn/closer.cgi?action=download&filename=
     gpgconf --kill gpg-agent && \
     apk del --purge gnupg && \
     rm -r ~/.gnupg && \
-    mkdir /opt && \
+    mkdir -p /opt && \
     tar -C /opt -zxf /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && \
     rm /tmp/KEYS /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz.asc && \
     ln -s kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka && \
