@@ -6,6 +6,7 @@ ARG KAFKA_VERSION=2.3.0
 ARG SCALA_VERSION=2.11
 # generate unique id by default
 ENV BROKER_ID=-1
+ENV TRANSACTION_MAX_TIMEOUT_MS=3600000
 EXPOSE 2181/tcp 9092/tcp
 
 RUN wget --quiet "http://www.apache.org/dyn/closer.cgi?action=download&filename=/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz" -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && \
@@ -22,11 +23,13 @@ RUN wget --quiet "http://www.apache.org/dyn/closer.cgi?action=download&filename=
     rm /tmp/KEYS /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz.asc && \
     ln -s kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka && \
     sed -i 's|^log.dirs=.*$|log.dirs=/var/lib/kafka|' /opt/kafka/config/server.properties && \
+    echo -e "\ntransaction.max.timeout.ms=3600000" >> /opt/kafka/config/server.properties && \
     # for kafka scripts
     apk add --no-cache bash
 
 VOLUME /var/lib/kafka
 
 CMD sed -i "s|^broker.id=.*$|broker.id=$BROKER_ID|" /opt/kafka/config/server.properties && \
+    sed -i "s|^transaction.max.timeout.ms=.*$|transaction.max.timeout.ms=$TRANSACTION_MAX_TIMEOUT_MS|" /opt/kafka/config/server.properties && \
     /opt/kafka/bin/zookeeper-server-start.sh -daemon /opt/kafka/config/zookeeper.properties && \
     /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
